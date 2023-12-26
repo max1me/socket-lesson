@@ -1,9 +1,10 @@
 package study.socket.common;
 
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-public class Message {
+public class Message implements Serializable {
     private final String text;
     private ZonedDateTime sentAt;
 

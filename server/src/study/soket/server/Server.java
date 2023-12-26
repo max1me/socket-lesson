@@ -17,11 +17,50 @@ import java.util.Optional;
 public class Server implements Runnable{
     private int port;
     private Map<Request, Integer> requests = new HashMap<>();
+    private Handler handler;
+    private Map<String, MessageGenerator> generators;
+
     public Server(int port) {
         this.port = port;
+        this.handler = new Handler(new DefaultGenerator(), this);
+        /*generators.put("/help", new HelpGenerator());
+        generators.put("/ping", new PingGenerator());
+        generators.put("/popular", new PopularGenerator());
+        generators.put("/default", new DefaultGenerator());*/
     }
-
     @Override
+    public void run() {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Сервер запущен");
+            while (true) {
+                Socket socket = serverSocket.accept();
+                try (ConnectionService connectionService = new ConnectionService(socket)) {
+                    String messageText = null;
+                    Message messageFromClient = connectionService.readMessage();
+                    handler.setGenerator(
+                            generators.getOrDefault(messageFromClient.getText(),
+                                    generators.get("/default")));
+                    Message out = handler.execute();
+                    System.out.println(messageFromClient.getText());
+                    /*if (messageFromClient.getText().equals("/help")) {
+                        handler.setGenerator(new HelpGenerator());
+                    } else if (messageFromClient.getText().equals("/ping")) {
+                        handler.setGenerator(new PingGenerator());
+                    } else  {
+                        handler.setGenerator(new DefaultGenerator());
+                    }*/
+
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                    System.out.println("Ошибка подключения клиента");
+                }
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            System.out.println("Ошибка создания ServerSocket");
+        }
+    }
+    /*@Override
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Сервер запущен");
@@ -61,7 +100,7 @@ public class Server implements Runnable{
                     if (messageText != null) connectionService.writeMessage(new Message(messageText));
                     //connectionService.close();
                 } catch (IOException e) {
-                    System.out.println(e.getMessage());
+                    Systemystem.out.println(e.getMessage());
                     System.out.println("Ошибка подключения клиента");
                 }
             }
@@ -69,7 +108,7 @@ public class Server implements Runnable{
             System.out.println(e.getMessage());
             System.out.println("Ошибка создания ServerSocket");
         }
-    }
+    }*/
     private void addRequest(Request request) {
         if (requests.containsKey(request)) {
             requests.put(request, requests.get(request) + 1);
