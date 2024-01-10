@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public class Client extends Thread implements Runnable{
+public class Client extends Thread implements Runnable {
     private InetSocketAddress remoteAddress;
 
     public Client(InetSocketAddress remoteAddress) {
@@ -18,11 +18,11 @@ public class Client extends Thread implements Runnable{
 
     @Override
     public void run() {
-        Scanner scanner = new Scanner(System.in);
+        ConnectionService service = null;
         try {
             Socket socket = new Socket(remoteAddress.getHostString(), remoteAddress.getPort());
             try  {
-                ConnectionService service = new ConnectionService(socket);
+                service = new ConnectionService(socket);
                 ClientReader clientReader = new ClientReader(service);
                 clientReader.start();
                 ClientWriter clientWriter = new ClientWriter(service);
@@ -30,11 +30,13 @@ public class Client extends Thread implements Runnable{
             } catch (IOException e) {
                 System.out.println(e.getMessage());
                 System.out.println("Сервер перестал отвечать");
+                service.close();
                 socket.close();
             }
         } catch (IOException e) {
             System.out.println("Сервер недоступен");
             System.out.println(e.getMessage());
+
         }
     }
 }

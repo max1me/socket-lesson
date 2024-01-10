@@ -5,22 +5,19 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class ConnectionThread extends Thread{
-    //private CopyOnWriteArraySet<ConnectionService> connectionServices;
     private ConcurrentHashMap<ConnectionService, Integer> clients;
     private ConnectionService connectionService;
     private final String fileDirectory = "./common/loadedFiles";
     private ConcurrentHashMap<String, String> filesWithDescription;
 
     public ConnectionThread(ConnectionService connectionService,
-                            /*CopyOnWriteArraySet<ConnectionService> connectionServices,*/
-                            ConcurrentHashMap<ConnectionService, Integer> clients) {
+                            ConcurrentHashMap<ConnectionService, Integer> clients,
+                            ConcurrentHashMap<String, String> filesWithDescription) {
         this.connectionService = Objects.requireNonNull(connectionService);
-        /*this.connectionServices = Objects.requireNonNull(connectionServices);*/
         this.clients = Objects.requireNonNull(clients);
-        this.filesWithDescription = new ConcurrentHashMap<>();
+        this.filesWithDescription = Objects.requireNonNull(filesWithDescription);
     }
 
     public ConnectionThread() {
@@ -100,12 +97,14 @@ public class ConnectionThread extends Thread{
                     if (!connectionService.equals(entry.getKey())) {
                         System.out.println("Server: sent message " + message.getText());
                         entry.getKey().writeMessage(new Message(text));
+                    } else {
+                        connectionService.writeMessage(new Message("Сообщение успешно отправлено"));
                     }
                 }
                 }
             } catch (IOException e) {
                 System.out.println("Сервер: Ошибка получения сообщения, соединение будет удалено");
-                System.out.println(e.getMessage());
+                //System.out.println(e.getMessage());
                 //connectionServices.remove(connectionService);
                 clients.remove(connectionService);
                 //throw new RuntimeException(e);

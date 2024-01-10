@@ -17,22 +17,20 @@ public class ClientWriter extends Thread{
     @Override
     public void run() {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Ввведите текст для отправки сообщения");
         System.out.println("Для загрузки файла введите /load");
         System.out.println("Для получения списка файлов введите /files");
         System.out.println("Для выхода из программы введите /exit");
         while (true) {
-            System.out.println("Введите сообщение");
+            //System.out.println("Введите сообщение");
             String text = scanner.nextLine();
             if (text.equals("/exit")) {
+                connectionService.close();
                 System.exit(0);
             } else {
                 TextFile textFile = null;
                 if (text.equals("/load")) {
                     textFile = connectionService.loadFile();
-                }
-                if (text.startsWith("/files ")) {
-                    text = connectionService.getFile();
-                    System.out.println(text);
                 }
                 Message message = null;
                 if (textFile != null) {

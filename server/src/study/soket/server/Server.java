@@ -13,18 +13,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Server implements Runnable{
     private int port;
-    private CopyOnWriteArraySet<ConnectionService> connectionServices;
-    private ConcurrentHashMap<ConnectionService, Integer> clients = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, String> filesWithDescription;
+    private ServerHandler serverHandler = new ServerHandler();
 
     public Server(int port) {
         this.port = port;
-        this.connectionServices = new CopyOnWriteArraySet<>();
-        /*this.handler = new Handler(new DefaultGenerator(), this);
-        generators.put("/help", new HelpGenerator());
-        generators.put("/ping", new PingGenerator());
-        generators.put("/popular", new PopularGenerator());
-        generators.put("/default", new DefaultGenerator());*/
     }
     @Override
     public void run() {
@@ -37,39 +29,10 @@ public class Server implements Runnable{
                 try {
                     ConnectionService connectionService = new ConnectionService(socket);
                     counter++;
-                    connectionServices.add(connectionService);
-                    clients.put(connectionService, counter);
+                    serverHandler.getClients().put(connectionService, counter);
                     System.out.println("Подключился клиент №" + counter);
-                    ConnectionThread connectionThread = new ConnectionThread(connectionService, /*connectionServices,*/ clients);
+                    ConnectionThread connectionThread = new ConnectionThread(connectionService, serverHandler.getClients(), serverHandler.getFilesWithDescription());
                     connectionThread.start();
-                    /*String messageText = null;
-                    Message messageFromClient = connectionService.readMessage();
-                    /*handler.setGenerator(
-                            generators.getOrDefault(messageFromClient.getText(),
-                                    generators.get("/default")));
-                    Message out = handler.execute();*/
-                    //Message out = new Message("Сообщение принято");
-                    //connectionService.writeMessage(out);
-        /*            try {
-                        for (ConnectionService connection : connectionServices) {
-                            if (!connection.equals(connectionService)) {
-                                System.out.println("1");
-                                connection.writeMessage(new Message("От другого клиента " + messageFromClient.getText()));
-                            }
-                        }
-                    } catch (IOException e) {
-                        System.out.println("sendMessage " + e.getMessage());
-                    }
-
-                     System.out.println(messageFromClient.getText());
-                    *//*if (messageFromClient.getText().equals("/help")) {
-                        handler.setGenerator(new HelpGenerator());
-                    } else if (messageFromClient.getText().equals("/ping")) {
-                        handler.setGenerator(new PingGenerator());
-                    } else  {
-                        handler.setGenerator(new DefaultGenerator());
-                    }*/
-
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
                     System.out.println("Ошибка подключения клиента");

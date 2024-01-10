@@ -67,12 +67,9 @@ public class ConnectionService implements AutoCloseable{
         }
         return null;
     }
-    public String getFile() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Введите имя файла");
-        String fileName = scanner.nextLine();
+/*    public String getFile(String fileName) {
         return fileName;
-    }
+    }*/
 
 
     @Override

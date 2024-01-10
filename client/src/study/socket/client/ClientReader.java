@@ -21,7 +21,8 @@ public class ClientReader extends Thread{
             } catch (IOException e) {
                 System.out.println("Ошибка получения сообщения");
                 System.out.println(e.getMessage());
-                break;
+                connectionService.close();
+                System.exit(0);
             }
         }
     }
